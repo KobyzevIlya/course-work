@@ -2,6 +2,32 @@ class NewsController < ApplicationController
   before_action :set_news, only: %i[ show edit update destroy ]
   before_action :check_authorize!
 
+  def likes_count
+    @news = News.find(params[:id])
+
+    render json: { likes_count: @news.news_users.count }
+  end
+
+  def check_like
+    @user = User.find_by(login: session[:login])
+    @news = News.find(params[:id])
+
+    render json: { is_liked: is_liked }
+  end
+
+  def like
+    @user = User.find_by(login: session[:login])
+    @news = News.find(params[:id])
+
+    if is_liked
+      @news.users.delete(@user)
+      render json: { message: "Лайк удален" }
+    else
+      @news.users << @user
+      render json: { message: "Лайк добавлен" }
+    end
+  end
+
   # GET /news or /news.json
   def index
     @news = News.all
@@ -59,6 +85,10 @@ class NewsController < ApplicationController
   end
 
   private
+    def is_liked
+      NewsUser.find_by(user_id: @user.id, news_id: @news.id).present?
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_news
       @news = News.find(params[:id])
