@@ -1,5 +1,6 @@
 class NewsController < ApplicationController
   before_action :set_news, only: %i[ show edit update destroy ]
+  before_action :check_authorize!
 
   # GET /news or /news.json
   def index
@@ -49,7 +50,7 @@ class NewsController < ApplicationController
 
   # DELETE /news/1 or /news/1.json
   def destroy
-    @news.destroy
+    @news.destroy!
 
     respond_to do |format|
       format.html { redirect_to news_index_url, notice: "News was successfully destroyed." }
