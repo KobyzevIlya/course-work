@@ -2,6 +2,8 @@ class NewsController < ApplicationController
   before_action :set_news, only: %i[ show edit update destroy ]
   before_action :check_authorize!
 
+  rescue_from(NotAuthorizedException) { |e| render json: e.body, status: 401 }
+
   def likes_count
     @news = News.find(params[:id])
 

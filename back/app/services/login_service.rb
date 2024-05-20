@@ -14,7 +14,7 @@ class LoginService
     modify_session
     message
   rescue StandardError
-    'Неверный пароль'
+    render json: { message: "Неверный пароль" }
   end
 
   private
