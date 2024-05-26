@@ -3,6 +3,6 @@
 # Exception with base response
 class BaseException < StandardError
   def body
-    { result: false, error: message }
+    { result: false, message: message }
   end
 end

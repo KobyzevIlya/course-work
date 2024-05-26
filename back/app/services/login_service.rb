@@ -10,17 +10,22 @@ class LoginService
   end
 
   def call
+    check_login
     check_password
     modify_session
     message
-  rescue StandardError
-    render json: { message: "Неверный пароль" }
   end
 
   private
 
+  def check_login
+    user = User.find_by(login: @params[:login])
+    raise IncorrectLoginException, 'Неверный логин' unless user
+  end
+
+
   def check_password
-    raise if @params[:password] != '123'
+    raise IncorrectPasswordException, 'Неверный пароль' if @params[:password] != '123'
   end
 
   def modify_session
