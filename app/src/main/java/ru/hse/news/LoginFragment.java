@@ -24,6 +24,7 @@ public class LoginFragment extends Fragment {
     private EditText editTextLogin;
     private EditText editTextPassword;
     private Button buttonLogin;
+    private Button buttonLogout;
     private TextView textViewResult;
 
     @Nullable
@@ -34,6 +35,7 @@ public class LoginFragment extends Fragment {
         editTextLogin = view.findViewById(R.id.editTextLogin);
         editTextPassword = view.findViewById(R.id.editTextPassword);
         buttonLogin = view.findViewById(R.id.buttonLogin);
+        buttonLogout = view.findViewById(R.id.buttonLogout);
         textViewResult = view.findViewById(R.id.textViewResult);
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
@@ -42,6 +44,13 @@ public class LoginFragment extends Fragment {
                 String login = editTextLogin.getText().toString();
                 String password = editTextPassword.getText().toString();
                 loginUser(login, password);
+            }
+        });
+
+        buttonLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logoutUser();
             }
         });
 
@@ -62,17 +71,21 @@ public class LoginFragment extends Fragment {
                         if (loginResponse.getResult()) {
                             textViewResult.setText(loginResponse.getMessage());
                             setLoginFormVisibility(View.GONE);
+                            buttonLogout.setVisibility(View.VISIBLE);
                         } else {
                             textViewResult.setText(loginResponse.getMessage());
                             setLoginFormVisibility(View.VISIBLE);
+                            buttonLogout.setVisibility(View.GONE);
                         }
                     } else {
                         textViewResult.setText("Empty response body");
                         setLoginFormVisibility(View.VISIBLE);
+                        buttonLogout.setVisibility(View.GONE);
                     }
                 } else {
                     textViewResult.setText("Login failed: " + response.code());
                     setLoginFormVisibility(View.VISIBLE);
+                    buttonLogout.setVisibility(View.GONE);
                 }
             }
 
@@ -80,6 +93,7 @@ public class LoginFragment extends Fragment {
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 textViewResult.setText("Login request failed: " + t.getMessage());
                 setLoginFormVisibility(View.VISIBLE);
+                buttonLogout.setVisibility(View.GONE);
             }
         });
     }
@@ -96,6 +110,7 @@ public class LoginFragment extends Fragment {
                         if (loginResponse.getResult()) {
                             textViewResult.setText(loginResponse.getMessage());
                             setLoginFormVisibility(View.GONE);
+                            buttonLogout.setVisibility(View.VISIBLE);
                         } else {
                             textViewResult.setText(loginResponse.getMessage());
                         }
@@ -110,6 +125,37 @@ public class LoginFragment extends Fragment {
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 textViewResult.setText("Login request failed: " + t.getMessage());
+            }
+        });
+    }
+
+    private void logoutUser() {
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<LoginResponse> call = apiService.logoutUser();
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.isSuccessful()) {
+                    LoginResponse loginResponse = response.body();
+                    if (loginResponse != null) {
+                        if (loginResponse.getResult()) {
+                            textViewResult.setText(loginResponse.getMessage());
+                            setLoginFormVisibility(View.VISIBLE);
+                            buttonLogout.setVisibility(View.GONE);
+                        } else {
+                            textViewResult.setText(loginResponse.getMessage());
+                        }
+                    } else {
+                        textViewResult.setText("Empty response body");
+                    }
+                } else {
+                    textViewResult.setText("Logout failed: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                textViewResult.setText("Logout request failed: " + t.getMessage());
             }
         });
     }
