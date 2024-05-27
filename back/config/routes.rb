@@ -4,7 +4,7 @@ Rails.application.routes.draw do
     member do
       get 'likes_count'
       get 'check_like'
-      get 'like'
+      post 'like'
     end
   end
   resource :login, only: [:show, :create, :destroy]

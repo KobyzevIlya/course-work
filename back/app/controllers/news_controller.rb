@@ -1,4 +1,5 @@
 class NewsController < ApplicationController
+  skip_before_action :verify_authenticity_token
   before_action :set_news, only: %i[ show edit update destroy ]
   before_action :check_authorize!
 
