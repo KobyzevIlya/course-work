@@ -15,4 +15,7 @@ public interface ApiService {
 
     @DELETE("login")
     Call<LoginResponse> logoutUser();
+
+    @POST("login/register")
+    Call<LoginResponse> registerUser(@Query("login") String login, @Query("password") String password);
 }

@@ -25,6 +25,7 @@ public class LoginFragment extends Fragment {
     private EditText editTextPassword;
     private Button buttonLogin;
     private Button buttonLogout;
+    private Button buttonRegister;
     private TextView textViewResult;
 
     @Nullable
@@ -36,6 +37,7 @@ public class LoginFragment extends Fragment {
         editTextPassword = view.findViewById(R.id.editTextPassword);
         buttonLogin = view.findViewById(R.id.buttonLogin);
         buttonLogout = view.findViewById(R.id.buttonLogout);
+        buttonRegister = view.findViewById(R.id.buttonRegister);
         textViewResult = view.findViewById(R.id.textViewResult);
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
@@ -51,6 +53,15 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 logoutUser();
+            }
+        });
+
+        buttonRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String login = editTextLogin.getText().toString();
+                String password = editTextPassword.getText().toString();
+                registerUser(login, password);
             }
         });
 
@@ -129,6 +140,31 @@ public class LoginFragment extends Fragment {
         });
     }
 
+    private void registerUser(String login, String password) {
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<LoginResponse> call = apiService.registerUser(login, password);
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.isSuccessful()) {
+                    LoginResponse loginResponse = response.body();
+                    if (loginResponse != null) {
+                        textViewResult.setText(loginResponse.getMessage());
+                    } else {
+                        textViewResult.setText("Empty response body");
+                    }
+                } else {
+                    textViewResult.setText("Registration failed: " + response.code() + " - " + response.errorBody().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                textViewResult.setText("Registration request failed: " + t.getMessage());
+            }
+        });
+    }
+
     private void logoutUser() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<LoginResponse> call = apiService.logoutUser();
@@ -138,13 +174,9 @@ public class LoginFragment extends Fragment {
                 if (response.isSuccessful()) {
                     LoginResponse loginResponse = response.body();
                     if (loginResponse != null) {
-                        if (loginResponse.getResult()) {
-                            textViewResult.setText(loginResponse.getMessage());
-                            setLoginFormVisibility(View.VISIBLE);
-                            buttonLogout.setVisibility(View.GONE);
-                        } else {
-                            textViewResult.setText(loginResponse.getMessage());
-                        }
+                        textViewResult.setText(loginResponse.getMessage());
+                        setLoginFormVisibility(View.VISIBLE);
+                        buttonLogout.setVisibility(View.GONE);
                     } else {
                         textViewResult.setText("Empty response body");
                     }
@@ -164,5 +196,6 @@ public class LoginFragment extends Fragment {
         editTextLogin.setVisibility(visibility);
         editTextPassword.setVisibility(visibility);
         buttonLogin.setVisibility(visibility);
+        buttonRegister.setVisibility(visibility);
     }
 }
