@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_05_19_191915) do
+ActiveRecord::Schema.define(version: 2024_05_27_172259) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 2024_05_19_191915) do
     t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["news_id", "user_id"], name: "index_news_users_on_news_id_and_user_id", unique: true
     t.index ["news_id"], name: "index_news_users_on_news_id"
     t.index ["user_id"], name: "index_news_users_on_user_id"
   end
@@ -37,6 +38,7 @@ ActiveRecord::Schema.define(version: 2024_05_19_191915) do
     t.string "login"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "password"
   end
 
   add_foreign_key "news_users", "news"

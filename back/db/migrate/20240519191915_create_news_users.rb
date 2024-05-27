@@ -5,8 +5,8 @@ class CreateNewsUsers < ActiveRecord::Migration[6.1]
       t.references :user, null: false, foreign_key: true
 
       t.timestamps
-
-      add_index :news_users, [:news_id, :user_id], unique: true
     end
+
+    add_index :news_users, [:news_id, :user_id], unique: true
   end
 end

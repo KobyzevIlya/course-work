@@ -14,7 +14,7 @@ class NewsController < ApplicationController
     @user = User.find_by(login: session[:login])
     @news = News.find(params[:id])
 
-    render json: { is_liked: is_liked }
+    render json: { result: is_liked }
   end
 
   def like
@@ -23,10 +23,10 @@ class NewsController < ApplicationController
 
     if is_liked
       @news.users.delete(@user)
-      render json: { message: "Лайк удален" }
+      render json: { result: true, message: "Лайк удален" }
     else
       @news.users << @user
-      render json: { message: "Лайк добавлен" }
+      render json: { result: true, message: "Лайк добавлен" }
     end
   end
 

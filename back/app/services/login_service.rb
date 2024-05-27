@@ -19,13 +19,13 @@ class LoginService
   private
 
   def check_login
-    user = User.find_by(login: @params[:login])
-    raise IncorrectLoginException, 'Неверный логин' unless user
+    @user = User.find_by(login: @params[:login])
+    raise IncorrectLoginException, 'Неверный логин' unless @user
   end
 
 
   def check_password
-    raise IncorrectPasswordException, 'Неверный пароль' if @params[:password] != '123'
+    raise IncorrectPasswordException, 'Неверный пароль' if @params[:password] != @user.password
   end
 
   def modify_session

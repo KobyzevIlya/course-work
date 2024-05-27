@@ -7,19 +7,23 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 User.create(
-  login: "user_1"
+  login: "user_1",
+  password: "user_1"
 )
 
 User.create(
-  login: "user_2"
+  login: "user_2",
+  password: "user_2"
 )
 
 User.create(
-  login: "user_3"
+  login: "user_3",
+  password: "user_3"
 )
 
 User.create(
-  login: "user_4"
+  login: "user_4",
+  password: "user_4"
 )
 
 # News.create(

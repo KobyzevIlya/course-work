@@ -8,5 +8,8 @@ Rails.application.routes.draw do
     end
   end
   resource :login, only: [:show, :create, :destroy]
+  resource :login do
+    post 'register'
+  end
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
