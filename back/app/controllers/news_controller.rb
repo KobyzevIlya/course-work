@@ -8,14 +8,14 @@ class NewsController < ApplicationController
   def likes_count
     @news = News.find(params[:id])
 
-    render json: { likes_count: @news.news_users.count }
+    render json: { result: true, message: @news.news_users.count }
   end
 
   def check_like
     @user = User.find_by(login: session[:login])
     @news = News.find(params[:id])
 
-    render json: { result: is_liked }
+    render json: { result: is_liked, message: "Без сообщения" }
   end
 
   def like
@@ -99,6 +99,6 @@ class NewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def news_params
-      params.require(:news).permit(:title, :image, :publisher, :text)
+      params.require(:news).permit(:title, :image, :publisher, :text, :link)
     end
 end
