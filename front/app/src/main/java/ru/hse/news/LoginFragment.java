@@ -14,10 +14,9 @@ import androidx.fragment.app.Fragment;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 import ru.hse.news.api.ApiClient;
 import ru.hse.news.api.ApiService;
-import ru.hse.news.api.LoginResponse;
+import ru.hse.news.api.Response;
 
 public class LoginFragment extends Fragment {
 
@@ -72,12 +71,12 @@ public class LoginFragment extends Fragment {
 
     private void checkLogin() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<LoginResponse> call = apiService.checkLogin();
-        call.enqueue(new Callback<LoginResponse>() {
+        Call<Response> call = apiService.checkLogin();
+        call.enqueue(new Callback<Response>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+            public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                 if (response.isSuccessful()) {
-                    LoginResponse loginResponse = response.body();
+                    Response loginResponse = response.body();
                     if (loginResponse != null) {
                         if (loginResponse.getResult()) {
                             textViewResult.setText(loginResponse.getMessage());
@@ -101,7 +100,7 @@ public class LoginFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
+            public void onFailure(Call<Response> call, Throwable t) {
                 textViewResult.setText("Login request failed: " + t.getMessage());
                 setLoginFormVisibility(View.VISIBLE);
                 buttonLogout.setVisibility(View.GONE);
@@ -111,12 +110,12 @@ public class LoginFragment extends Fragment {
 
     private void loginUser(String login, String password) {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<LoginResponse> call = apiService.loginUser(login, password);
-        call.enqueue(new Callback<LoginResponse>() {
+        Call<Response> call = apiService.loginUser(login, password);
+        call.enqueue(new Callback<Response>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+            public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                 if (response.isSuccessful()) {
-                    LoginResponse loginResponse = response.body();
+                    Response loginResponse = response.body();
                     if (loginResponse != null) {
                         if (loginResponse.getResult()) {
                             textViewResult.setText(loginResponse.getMessage());
@@ -134,7 +133,7 @@ public class LoginFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
+            public void onFailure(Call<Response> call, Throwable t) {
                 textViewResult.setText("Login request failed: " + t.getMessage());
             }
         });
@@ -142,12 +141,12 @@ public class LoginFragment extends Fragment {
 
     private void registerUser(String login, String password) {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<LoginResponse> call = apiService.registerUser(login, password);
-        call.enqueue(new Callback<LoginResponse>() {
+        Call<Response> call = apiService.registerUser(login, password);
+        call.enqueue(new Callback<Response>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+            public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                 if (response.isSuccessful()) {
-                    LoginResponse loginResponse = response.body();
+                    Response loginResponse = response.body();
                     if (loginResponse != null) {
                         textViewResult.setText(loginResponse.getMessage());
                     } else {
@@ -159,7 +158,7 @@ public class LoginFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
+            public void onFailure(Call<Response> call, Throwable t) {
                 textViewResult.setText("Registration request failed: " + t.getMessage());
             }
         });
@@ -167,12 +166,12 @@ public class LoginFragment extends Fragment {
 
     private void logoutUser() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<LoginResponse> call = apiService.logoutUser();
-        call.enqueue(new Callback<LoginResponse>() {
+        Call<Response> call = apiService.logoutUser();
+        call.enqueue(new Callback<Response>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+            public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                 if (response.isSuccessful()) {
-                    LoginResponse loginResponse = response.body();
+                    Response loginResponse = response.body();
                     if (loginResponse != null) {
                         textViewResult.setText(loginResponse.getMessage());
                         setLoginFormVisibility(View.VISIBLE);
@@ -186,7 +185,7 @@ public class LoginFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
+            public void onFailure(Call<Response> call, Throwable t) {
                 textViewResult.setText("Logout request failed: " + t.getMessage());
             }
         });

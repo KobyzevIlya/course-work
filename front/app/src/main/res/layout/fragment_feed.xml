@@ -1,13 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:padding="16dp">
 
     <TextView
+        android:id="@+id/textViewLoginRequired"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Пожалуйста, войдите в систему, чтобы просматривать новости"
+        android:visibility="gone"
+        android:textAlignment="center"
+        android:textSize="16sp"
+        android:padding="16dp"/>
+
+    <TextView
+        android:id="@+id/textViewNewsTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Заголовок новости"
+        android:textSize="18sp"
+        android:visibility="gone"
+        android:padding="8dp"/>
+
+    <ImageView
+        android:id="@+id/imageViewNews"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:padding="8dp"/>
+
+    <TextView
+        android:id="@+id/textViewLikesCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0 лайков"
+        android:visibility="gone"
+        android:padding="8dp"/>
+
+    <Button
+        android:id="@+id/buttonLike"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Feed" />
-
+        android:text="Лайк"
+        android:visibility="gone"
+        android:padding="8dp"/>
 </LinearLayout>

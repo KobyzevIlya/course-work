@@ -1,6 +1,6 @@
 package ru.hse.news.api;
 
-public class LoginResponse {
+public class Response {
     private boolean result;
     private String message;
 
