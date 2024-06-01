@@ -15,36 +15,10 @@
         android:textSize="16sp"
         android:padding="16dp"/>
 
-    <TextView
-        android:id="@+id/textViewNewsTitle"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewNews"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Заголовок новости"
-        android:textSize="18sp"
-        android:visibility="gone"
-        android:padding="8dp"/>
-
-    <ImageView
-        android:id="@+id/imageViewNews"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:visibility="gone"
-        android:padding="8dp"/>
-
-    <TextView
-        android:id="@+id/textViewLikesCount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="0 лайков"
-        android:visibility="gone"
-        android:padding="8dp"/>
-
-    <Button
-        android:id="@+id/buttonLike"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Лайк"
+        android:layout_height="match_parent"
         android:visibility="gone"
         android:padding="8dp"/>
 </LinearLayout>

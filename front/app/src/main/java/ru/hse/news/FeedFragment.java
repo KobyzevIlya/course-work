@@ -4,15 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import com.squareup.picasso.Picasso;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
@@ -23,13 +22,12 @@ import ru.hse.news.api.ApiClient;
 import ru.hse.news.api.ApiService;
 import ru.hse.news.api.News;
 
-public class FeedFragment extends Fragment {
+public class FeedFragment extends Fragment implements NewsAdapter.OnLikeClickListener {
 
     private TextView textViewLoginRequired;
-    private TextView textViewNewsTitle;
-    private ImageView imageViewNews;
-    private TextView textViewLikesCount;
-    private Button buttonLike;
+    private RecyclerView recyclerViewNews;
+    private NewsAdapter newsAdapter;
+    private ApiService apiService;
 
     @Nullable
     @Override
@@ -37,10 +35,10 @@ public class FeedFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
 
         textViewLoginRequired = view.findViewById(R.id.textViewLoginRequired);
-        textViewNewsTitle = view.findViewById(R.id.textViewNewsTitle);
-        imageViewNews = view.findViewById(R.id.imageViewNews);
-        textViewLikesCount = view.findViewById(R.id.textViewLikesCount);
-        buttonLike = view.findViewById(R.id.buttonLike);
+        recyclerViewNews = view.findViewById(R.id.recyclerViewNews);
+        recyclerViewNews.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        apiService = ApiClient.getClient().create(ApiService.class);
 
         checkLogin();
 
@@ -48,7 +46,6 @@ public class FeedFragment extends Fragment {
     }
 
     private void checkLogin() {
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ru.hse.news.api.Response> call = apiService.checkLogin();
         call.enqueue(new Callback<ru.hse.news.api.Response>() {
             @Override
@@ -74,20 +71,16 @@ public class FeedFragment extends Fragment {
 
     private void showLoginRequiredMessage() {
         textViewLoginRequired.setVisibility(View.VISIBLE);
+        recyclerViewNews.setVisibility(View.GONE);
     }
 
     private void showNews() {
         textViewLoginRequired.setVisibility(View.GONE);
-        textViewNewsTitle.setVisibility(View.VISIBLE);
-        imageViewNews.setVisibility(View.VISIBLE);
-        textViewLikesCount.setVisibility(View.VISIBLE);
-        buttonLike.setVisibility(View.VISIBLE);
-
+        recyclerViewNews.setVisibility(View.VISIBLE);
         loadAllNews();
     }
 
     private void loadAllNews() {
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<List<News>> call = apiService.getAllNews();
         call.enqueue(new Callback<List<News>>() {
             @Override
@@ -95,38 +88,54 @@ public class FeedFragment extends Fragment {
                 if (response.isSuccessful()) {
                     List<News> newsList = response.body();
                     if (newsList != null && !newsList.isEmpty()) {
-                        // Отображаем первую новость из списка
-                        displayNews(newsList.get(0));
+                        newsAdapter = new NewsAdapter(newsList, FeedFragment.this);
+                        recyclerViewNews.setAdapter(newsAdapter);
                     } else {
-                        textViewNewsTitle.setText("Список новостей пуст");
+                        textViewLoginRequired.setText("Список новостей пуст");
+                        textViewLoginRequired.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    textViewNewsTitle.setText("Ошибка загрузки списка новостей: " + response.code());
+                    textViewLoginRequired.setText("Ошибка загрузки списка новостей: " + response.code());
+                    textViewLoginRequired.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onFailure(Call<List<News>> call, Throwable t) {
-                textViewNewsTitle.setText("Ошибка загрузки списка новостей: " + t.getMessage());
+                textViewLoginRequired.setText("Ошибка загрузки списка новостей: " + t.getMessage());
+                textViewLoginRequired.setVisibility(View.VISIBLE);
             }
         });
     }
 
-    private void displayNews(News news) {
-        textViewNewsTitle.setText(news.getTitle());
-        Picasso.get().load(news.getImage()).into(imageViewNews);
-        updateLikesCount(news.getId());
-        checkLikeStatus(news.getId());
-        buttonLike.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onLikeClick(int newsId, TextView textViewLikesCount, ImageButton buttonLike) {
+        Call<ru.hse.news.api.Response> call = apiService.likeNews(newsId);
+        call.enqueue(new Callback<ru.hse.news.api.Response>() {
             @Override
-            public void onClick(View v) {
-                toggleLike(news.getId());
+            public void onResponse(Call<ru.hse.news.api.Response> call, Response<ru.hse.news.api.Response> response) {
+                if (response.isSuccessful()) {
+                    ru.hse.news.api.Response likeResponse = response.body();
+                    if (likeResponse != null) {
+                        updateLikesCount(newsId, textViewLikesCount);
+                        checkLikeStatus(newsId, buttonLike);
+                    } else {
+                        textViewLikesCount.setText("Ошибка изменения лайка");
+                    }
+                } else {
+                    textViewLikesCount.setText("Ошибка изменения лайка");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ru.hse.news.api.Response> call, Throwable t) {
+                textViewLikesCount.setText("Ошибка изменения лайка: " + t.getMessage());
             }
         });
     }
 
-    private void updateLikesCount(int newsId) {
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+    @Override
+    public void updateLikesCount(int newsId, TextView textViewLikesCount) {
         Call<ru.hse.news.api.Response> call = apiService.getLikesCount(newsId);
         call.enqueue(new Callback<ru.hse.news.api.Response>() {
             @Override
@@ -134,7 +143,7 @@ public class FeedFragment extends Fragment {
                 if (response.isSuccessful()) {
                     ru.hse.news.api.Response likesResponse = response.body();
                     if (likesResponse != null) {
-                        textViewLikesCount.setText(likesResponse.getMessage() + " лайков");
+                        textViewLikesCount.setText(NewsAdapter.formatLikes(Integer.parseInt(likesResponse.getMessage())));
                     } else {
                         textViewLikesCount.setText("Ошибка загрузки лайков");
                     }
@@ -150,8 +159,8 @@ public class FeedFragment extends Fragment {
         });
     }
 
-    private void checkLikeStatus(int newsId) {
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+    @Override
+    public void checkLikeStatus(int newsId, ImageButton buttonLike) {
         Call<ru.hse.news.api.Response> call = apiService.checkLike(newsId);
         call.enqueue(new Callback<ru.hse.news.api.Response>() {
             @Override
@@ -159,45 +168,18 @@ public class FeedFragment extends Fragment {
                 if (response.isSuccessful()) {
                     ru.hse.news.api.Response likeResponse = response.body();
                     if (likeResponse != null && likeResponse.getResult()) {
-                        buttonLike.setText("Удалить лайк");
+                        buttonLike.setImageResource(R.drawable.ic_heart_filled);
                     } else {
-                        buttonLike.setText("Лайк");
+                        buttonLike.setImageResource(R.drawable.ic_heart_outline);
                     }
                 } else {
-                    buttonLike.setText("Лайк");
+                    buttonLike.setImageResource(R.drawable.ic_heart_outline);
                 }
             }
 
             @Override
             public void onFailure(Call<ru.hse.news.api.Response> call, Throwable t) {
-                buttonLike.setText("Лайк");
-            }
-        });
-    }
-
-    private void toggleLike(int newsId) {
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ru.hse.news.api.Response> call = apiService.likeNews(newsId);
-        call.enqueue(new Callback<ru.hse.news.api.Response>() {
-            @Override
-            public void onResponse(Call<ru.hse.news.api.Response> call, Response<ru.hse.news.api.Response> response) {
-                if (response.isSuccessful()) {
-                    ru.hse.news.api.Response likeResponse = response.body();
-                    if (likeResponse != null) {
-                        textViewLikesCount.setText(likeResponse.getMessage());
-                        checkLikeStatus(newsId);
-                        updateLikesCount(newsId);
-                    } else {
-                        textViewLikesCount.setText("Ошибка изменения лайка");
-                    }
-                } else {
-                    textViewLikesCount.setText("Ошибка изменения лайка");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ru.hse.news.api.Response> call, Throwable t) {
-                textViewLikesCount.setText("Ошибка изменения лайка: " + t.getMessage());
+                buttonLike.setImageResource(R.drawable.ic_heart_outline);
             }
         });
     }
