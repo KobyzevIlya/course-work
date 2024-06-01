@@ -1,6 +1,8 @@
 services:
   app: 
-    build: .
+    build: 
+      context: ./back
+      dockerfile: Dockerfile
     command: rails s -b 0.0.0.0 
     volumes:
       - ./back/:/usr/src
@@ -17,5 +19,6 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
       - .:/src
+
 volumes:
   postgres:
