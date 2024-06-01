@@ -1,5 +1,6 @@
 package ru.hse.news;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,12 +62,16 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
         public void bind(News news, OnLikeClickListener onLikeClickListener) {
             textViewNewsTitle.setText(news.getTitle());
             Picasso.get().load(news.getImage()).into(imageViewNews);
-            // Загрузить количество лайков и статус лайка
-            // (этот метод должен быть реализован в активности или фрагменте)
             onLikeClickListener.updateLikesCount(news.getId(), textViewLikesCount);
             onLikeClickListener.checkLikeStatus(news.getId(), buttonLike);
 
             buttonLike.setOnClickListener(v -> onLikeClickListener.onLikeClick(news.getId(), textViewLikesCount, buttonLike));
+
+            textViewNewsTitle.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), FullNewsActivity.class);
+                intent.putExtra(FullNewsActivity.EXTRA_NEWS_LINK, news.getLink());
+                v.getContext().startActivity(intent);
+            });
         }
     }
 

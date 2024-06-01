@@ -12,6 +12,8 @@ public class News {
     private String updatedAt;
     private String url;
 
+    private String link;
+
     public int getId() {
         return id;
     }
@@ -42,5 +44,9 @@ public class News {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getLink() {
+        return link;
     }
 }
