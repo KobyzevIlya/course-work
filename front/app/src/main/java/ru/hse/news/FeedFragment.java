@@ -1,9 +1,12 @@
 package ru.hse.news;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -28,6 +31,7 @@ public class FeedFragment extends Fragment implements NewsAdapter.OnLikeClickLis
     private RecyclerView recyclerViewNews;
     private NewsAdapter newsAdapter;
     private ApiService apiService;
+    private EditText editTextSearch;
 
     @Nullable
     @Override
@@ -37,8 +41,27 @@ public class FeedFragment extends Fragment implements NewsAdapter.OnLikeClickLis
         textViewLoginRequired = view.findViewById(R.id.textViewLoginRequired);
         recyclerViewNews = view.findViewById(R.id.recyclerViewNews);
         recyclerViewNews.setLayoutManager(new LinearLayoutManager(getContext()));
+        editTextSearch = view.findViewById(R.id.editTextSearch);
 
         apiService = ApiClient.getClient().create(ApiService.class);
+
+        editTextSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Не используется
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Выполнение поиска при изменении текста
+                searchNews(s.toString().trim());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Не используется
+            }
+        });
 
         checkLogin();
 
@@ -81,7 +104,7 @@ public class FeedFragment extends Fragment implements NewsAdapter.OnLikeClickLis
     }
 
     private void loadAllNews() {
-        Call<List<News>> call = apiService.getAllNews();
+        Call<List<News>> call = apiService.getAllNews(null);
         call.enqueue(new Callback<List<News>>() {
             @Override
             public void onResponse(Call<List<News>> call, Response<List<News>> response) {
@@ -106,6 +129,38 @@ public class FeedFragment extends Fragment implements NewsAdapter.OnLikeClickLis
                 textViewLoginRequired.setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    private void searchNews(String query) {
+        if (!query.isEmpty()) {
+            Call<List<News>> call = apiService.getAllNews(query);
+            call.enqueue(new Callback<List<News>>() {
+                @Override
+                public void onResponse(Call<List<News>> call, Response<List<News>> response) {
+                    if (response.isSuccessful()) {
+                        List<News> newsList = response.body();
+                        if (newsList != null && !newsList.isEmpty()) {
+                            newsAdapter = new NewsAdapter(newsList, FeedFragment.this);
+                            recyclerViewNews.setAdapter(newsAdapter);
+                        } else {
+                            textViewLoginRequired.setText("По вашему запросу новостей не найдено");
+                            textViewLoginRequired.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        textViewLoginRequired.setText("Ошибка поиска новостей: " + response.code());
+                        textViewLoginRequired.setVisibility(View.VISIBLE);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<News>> call, Throwable t) {
+                    textViewLoginRequired.setText("Ошибка поиска новостей: " + t.getMessage());
+                    textViewLoginRequired.setVisibility(View.VISIBLE);
+                }
+            });
+        } else {
+            loadAllNews();
+        }
     }
 
     @Override

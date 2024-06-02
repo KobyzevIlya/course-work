@@ -35,5 +35,5 @@ public interface ApiService {
     Call<Response> likeNews(@Path("id") int newsId);
 
     @GET("news.json")
-    Call<List<News>> getAllNews();
+    Call<List<News>> getAllNews(@Query("title") String title);
 }
