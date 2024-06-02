@@ -1,0 +1,24 @@
+services:
+  app: 
+    build: 
+      context: ./back
+      dockerfile: Dockerfile
+    command: rails s -b 0.0.0.0 
+    volumes:
+      - ./back/:/usr/src
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:11.5
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password 
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - .:/src
+
+volumes:
+  postgres:

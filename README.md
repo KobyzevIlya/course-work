@@ -1,1 +1,1 @@
-# course-work
+build: docker-compose up
