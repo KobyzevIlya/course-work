@@ -33,7 +33,11 @@ class NewsController < ApplicationController
 
   # GET /news or /news.json
   def index
-    @news = News.all
+    if params[:title].present?
+      @news = News.where('title LIKE ?', "%#{params[:title]}%")
+    else
+      @news = News.all
+    end
   end
 
   # GET /news/1 or /news/1.json
